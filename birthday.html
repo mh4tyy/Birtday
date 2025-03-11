@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>С Днем Рождения, Мама!</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: #ffe6f2;
+            font-family: 'Arial', cursive;
+            text-align: center;
+        }
+
+        #start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .countdown {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 150px;
+            font-weight: bold;
+            background: rgba(255, 230, 242, 0.95);
+            z-index: 999;
+        }
+
+        .message {
+            display: none;
+            position: relative;
+            padding: 30px;
+            margin: 20px auto;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.3);
+        }
+
+        .hearts {
+            position: fixed;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .falling {
+            position: absolute;
+            animation: fall 5s linear infinite;
+        }
+
+        #next-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 40px;
+            font-size: 24px;
+            background: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            display: none;
+            z-index: 1001;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-50px) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Стартовый экран -->
+    <div id="start-screen">
+        <div style="font-size: 100px;">❤️</div>
+    </div>
+
+    <!-- Обратный отсчет -->
+    <div class="countdown" id="countdown-3">3</div>
+    <div class="countdown" id="countdown-2">2</div>
+    <div class="countdown" id="countdown-1">1</div>
+
+    <!-- Сообщения -->
+    <div class="message" id="message1">
+        <h1>С Днем Рождения, Мамочка! 💐</h1>
+        <p>Спасибо, что ты всегда рядом!<br>Ты самая добрая и заботливая! 💖</p>
+    </div>
+
+    <div class="message" id="message2">
+        <h1>Ты - Самое Дорогое! 🌸</h1>
+        <p>Спасибо за твою любовь и терпение!<br>Желаю тебе здоровья и счастья! 🌺</p>
+    </div>
+
+    <div class="message" id="message3">
+        <h1>Люблю Тебя Очень Сильно! 🌹</h1>
+        <p>Пусть все мечты сбываются!<br>Ты лучшая мама на свете! 💮</p>
+    </div>
+
+    <button id="next-btn">ДАЛЬШЕ ➡️</button>
+
+    <script>
+        let currentStep = 0;
+        const messages = document.querySelectorAll('.message');
+        const emojiSets = [
+            ['❤️', '🩷'], 
+            ['🌷', '🌼'], 
+            ['🌸', '💐'],
+            ['🌹', '❤️']
+        ];
+
+        // Стартовая анимация
+        document.getElementById('start-screen').addEventListener('click', startCountdown);
+
+        function startCountdown() {
+            // Скрываем стартовый экран
+            document.getElementById('start-screen').style.display = 'none';
+            
+            // Показываем обратный отсчет
+            showCountdown(3);
+        }
+
+        function showCountdown(number) {
+            const countdown = document.getElementById(`countdown-${number}`);
+            countdown.style.display = 'flex';
+            countdown.style.color = number % 2 ? '#ff0066' : '#ff1493';
+
+            setTimeout(() => {
+                countdown.style.display = 'none';
+                if(number > 1) {
+                    showCountdown(number - 1);
+                } else {
+                    showMessage(0);
+                    startHearts(0);
+                    document.getElementById('next-btn').style.display = 'block';
+                }
+            }, 1000);
+        }
+
+        function showMessage(index) {
+            messages.forEach(msg => msg.style.display = 'none');
+            messages[index].style.display = 'block';
+            currentStep = index;
+        }
+
+        function startHearts(setIndex) {
+            const container = document.createElement('div');
+            container.className = 'hearts';
+            document.body.appendChild(container);
+
+            // Создаем падающие элементы
+            for(let i = 0; i < 30; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'falling';
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 3 + 's';
+                heart.style.fontSize = Math.random() * 20 + 20 + 'px';
+                heart.textContent = emojiSets[setIndex][Math.floor(Math.random() * 2)];
+                container.appendChild(heart);
+            }
+        }
+
+        // Обработчик кнопки "Дальше"
+        document.getElementById('next-btn').addEventListener('click', () => {
+            // Удаляем старые сердечки
+            document.querySelectorAll('.hearts').forEach(el => el.remove());
+            
+            if(currentStep < messages.length - 1) {
+                showMessage(currentStep + 1);
+                startHearts(currentStep + 1);
+            } else {
+                // Цикличное повторение
+                showMessage(0);
+                startHearts(0);
+            }
+        });
+    </script>
+</body>
+</html>
